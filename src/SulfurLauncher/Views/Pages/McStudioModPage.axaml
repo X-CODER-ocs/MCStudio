@@ -1,0 +1,137 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:SulfurLauncher.ViewModels"
+             x:Class="SulfurLauncher.Views.Pages.McStudioModPage"
+             x:CompileBindings="False">
+    <DockPanel>
+        <Border DockPanel.Dock="Top" Padding="16 16 16 8">
+            <StackPanel Spacing="8">
+                <TextBlock Text="[M] 模组开发"
+                           FontSize="24"
+                           FontWeight="SemiBold" />
+            </StackPanel>
+        </Border>
+
+        <DockPanel>
+            <!-- 左侧工作区列表 -->
+            <Border DockPanel.Dock="Left" Width="280" Margin="8 0 0 8" CornerRadius="8" Background="#1A1A2E">
+                <DockPanel>
+                    <Border DockPanel.Dock="Top" Padding="12 12 12 8">
+                        <StackPanel Spacing="8">
+                            <TextBlock Text="工作区" FontSize="16" FontWeight="SemiBold" />
+                            <Button x:Name="NewWorkspaceBtn" Content="+ 新建工作区"
+                                    Click="OnNewWorkspace"
+                                    Background="#4A90D9"
+                                    Foreground="White"
+                                    CornerRadius="6"
+                                    BorderThickness="0"
+                                    FontSize="13" />
+                        </StackPanel>
+                    </Border>
+
+                    <ScrollViewer>
+                        <ItemsControl x:Name="WorkspaceList" ItemsSource="{Binding Workspaces}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Border Padding="12 8" Margin="8 4" CornerRadius="6"
+                                            Background="#2A2A3E"
+                                            PointerPressed="OnWorkspaceClick">
+                                        <StackPanel Spacing="4">
+                                            <TextBlock Text="{Binding ModId}" FontWeight="Bold" />
+                                            <TextBlock Text="{Binding ModName}" FontSize="12" Opacity="0.7" />
+                                            <TextBlock Text="{Binding MinecraftVersion}" FontSize="11" Opacity="0.5" />
+                                        </StackPanel>
+                                    </Border>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </ScrollViewer>
+                </DockPanel>
+            </Border>
+
+            <!-- 右侧内容区 -->
+            <Border Margin="8 0 8 8" CornerRadius="8" Background="#1A1A2E">
+                <DockPanel>
+                    <Border DockPanel.Dock="Top" Padding="16 12">
+                        <StackPanel Spacing="8">
+                            <TextBlock x:Name="SelectedWorkspaceTitle"
+                                       Text="选择一个工作区"
+                                       FontSize="18" FontWeight="SemiBold" />
+                        </StackPanel>
+                    </Border>
+
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="200" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+
+                        <!-- 元素类型 -->
+                        <Border Grid.Column="0" Margin="8 0 4 8" CornerRadius="6" Background="#2A2A3E">
+                            <DockPanel>
+                                <Border DockPanel.Dock="Top" Padding="12 8">
+                                    <TextBlock Text="模组元素" FontSize="14" FontWeight="SemiBold" />
+                                </Border>
+                                <ScrollViewer>
+                                    <StackPanel>
+                                        <Button x:Name="AddBlockBtn" Content="[B] 方块" Click="OnAddBlock"
+                                                Margin="4 2" Padding="12 8" CornerRadius="4"
+                                                Background="#3A3A4E" BorderThickness="0"
+                                                HorizontalContentAlignment="Left" />
+                                        <Button x:Name="AddItemBtn" Content="[I] 物品" Click="OnAddItem"
+                                                Margin="4 2" Padding="12 8" CornerRadius="4"
+                                                Background="#3A3A4E" BorderThickness="0"
+                                                HorizontalContentAlignment="Left" />
+                                        <Button x:Name="AddEntityBtn" Content="[E] 生物" Click="OnAddEntity"
+                                                Margin="4 2" Padding="12 8" CornerRadius="4"
+                                                Background="#3A3A4E" BorderThickness="0"
+                                                HorizontalContentAlignment="Left" />
+                                        <Button x:Name="AddProcedureBtn" Content="[P] 程序" Click="OnAddProcedure"
+                                                Margin="4 2" Padding="12 8" CornerRadius="4"
+                                                Background="#3A3A4E" BorderThickness="0"
+                                                HorizontalContentAlignment="Left" />
+                                    </StackPanel>
+                                </ScrollViewer>
+                            </DockPanel>
+                        </Border>
+
+                        <!-- 元素列表 -->
+                        <Border Grid.Column="1" Margin="4 0 8 8" CornerRadius="6" Background="#2A2A3E">
+                            <DockPanel>
+                                <Border DockPanel.Dock="Top" Padding="12 8">
+                                    <TextBlock x:Name="ElementListTitle" Text="元素列表" FontSize="14" FontWeight="SemiBold" />
+                                </Border>
+                                <ScrollViewer>
+                                    <ItemsControl x:Name="ElementList">
+                                        <ItemsControl.ItemTemplate>
+                                            <DataTemplate>
+                                                <Border Padding="12 8" Margin="8 2" CornerRadius="4"
+                                                        Background="#3A3A4E">
+                                                    <StackPanel Orientation="Horizontal" Spacing="8">
+                                                        <TextBlock Text="{Binding Type}" FontSize="12" Opacity="0.6" Width="80" />
+                                                        <TextBlock Text="{Binding Name}" FontWeight="Bold" />
+                                                    </StackPanel>
+                                                </Border>
+                                            </DataTemplate>
+                                        </ItemsControl.ItemTemplate>
+                                    </ItemsControl>
+                                </ScrollViewer>
+                            </DockPanel>
+                        </Border>
+                    </Grid>
+
+                    <Border DockPanel.Dock="Bottom" Padding="12 8" Background="#2A2A3E">
+                        <StackPanel Orientation="Horizontal" Spacing="8" HorizontalAlignment="Right">
+                            <Button x:Name="GenerateBtn" Content="生成代码" Click="OnGenerateCode"
+                                    Background="#FF9800" Foreground="White"
+                                    CornerRadius="6" BorderThickness="0" Padding="16 8" />
+                            <Button x:Name="BuildBtn" Content="构建模组" Click="OnBuildMod"
+                                    Background="#4A90D9" Foreground="White"
+                                    CornerRadius="6" BorderThickness="0" Padding="16 8" />
+                        </StackPanel>
+                    </Border>
+                </DockPanel>
+            </Border>
+        </DockPanel>
+    </DockPanel>
+</UserControl>
