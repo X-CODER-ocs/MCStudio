@@ -74,20 +74,92 @@
                                 </Border>
                                 <ScrollViewer>
                                     <StackPanel>
-                                        <Button x:Name="AddBlockBtn" Content="[B] 方块" Click="OnAddBlock"
-                                                Margin="4 2" Padding="12 8" CornerRadius="4"
+                                        <Button x:Name="AddBlockBtn" Content="[B] 方块" Click="OnAddElement"
+                                                Tag="block" Margin="4 2" Padding="12 8" CornerRadius="4"
                                                 Background="#3A3A4E" BorderThickness="0"
                                                 HorizontalContentAlignment="Left" />
-                                        <Button x:Name="AddItemBtn" Content="[I] 物品" Click="OnAddItem"
-                                                Margin="4 2" Padding="12 8" CornerRadius="4"
+                                        <Button x:Name="AddItemBtn" Content="[I] 物品" Click="OnAddElement"
+                                                Tag="item" Margin="4 2" Padding="12 8" CornerRadius="4"
                                                 Background="#3A3A4E" BorderThickness="0"
                                                 HorizontalContentAlignment="Left" />
-                                        <Button x:Name="AddEntityBtn" Content="[E] 生物" Click="OnAddEntity"
-                                                Margin="4 2" Padding="12 8" CornerRadius="4"
+                                        <Button x:Name="AddEntityBtn" Content="[E] 生物" Click="OnAddElement"
+                                                Tag="livingentity" Margin="4 2" Padding="12 8" CornerRadius="4"
                                                 Background="#3A3A4E" BorderThickness="0"
                                                 HorizontalContentAlignment="Left" />
-                                        <Button x:Name="AddProcedureBtn" Content="[P] 程序" Click="OnAddProcedure"
-                                                Margin="4 2" Padding="12 8" CornerRadius="4"
+                                        <Button x:Name="AddArmorBtn" Content="[A] 盔甲" Click="OnAddElement"
+                                                Tag="armor" Margin="4 2" Padding="12 8" CornerRadius="4"
+                                                Background="#3A3A4E" BorderThickness="0"
+                                                HorizontalContentAlignment="Left" />
+                                        <Button x:Name="AddToolBtn" Content="[T] 工具" Click="OnAddElement"
+                                                Tag="tool" Margin="4 2" Padding="12 8" CornerRadius="4"
+                                                Background="#3A3A4E" BorderThickness="0"
+                                                HorizontalContentAlignment="Left" />
+                                        <Button x:Name="AddRecipeBtn" Content="[R] 合成表" Click="OnAddElement"
+                                                Tag="recipe" Margin="4 2" Padding="12 8" CornerRadius="4"
+                                                Background="#3A3A4E" BorderThickness="0"
+                                                HorizontalContentAlignment="Left" />
+                                        <Button x:Name="AddProcedureBtn" Content="[P] 程序" Click="OnAddElement"
+                                                Tag="procedure" Margin="4 2" Padding="12 8" CornerRadius="4"
+                                                Background="#3A3A4E" BorderThickness="0"
+                                                HorizontalContentAlignment="Left" />
+                                        <Button x:Name="AddDimensionBtn" Content="[D] 维度" Click="OnAddElement"
+                                                Tag="dimension" Margin="4 2" Padding="12 8" CornerRadius="4"
+                                                Background="#3A3A4E" BorderThickness="0"
+                                                HorizontalContentAlignment="Left" />
+                                        <Button x:Name="AddBiomeBtn" Content="[B] 群系" Click="OnAddElement"
+                                                Tag="biome" Margin="4 2" Padding="12 8" CornerRadius="4"
+                                                Background="#3A3A4E" BorderThickness="0"
+                                                HorizontalContentAlignment="Left" />
+                                        <Button x:Name="AddFluidBtn" Content="[F] 流体" Click="OnAddElement"
+                                                Tag="fluid" Margin="4 2" Padding="12 8" CornerRadius="4"
+                                                Background="#3A3A4E" BorderThickness="0"
+                                                HorizontalContentAlignment="Left" />
+                                        <Button x:Name="AddPlantBtn" Content="[P] 植物" Click="OnAddElement"
+                                                Tag="plant" Margin="4 2" Padding="12 8" CornerRadius="4"
+                                                Background="#3A3A4E" BorderThickness="0"
+                                                HorizontalContentAlignment="Left" />
+                                        <Button x:Name="AddFeatureBtn" Content="[F] 特征" Click="OnAddElement"
+                                                Tag="feature" Margin="4 2" Padding="12 8" CornerRadius="4"
+                                                Background="#3A3A4E" BorderThickness="0"
+                                                HorizontalContentAlignment="Left" />
+                                        <Button x:Name="AddGuiBtn" Content="[G] GUI" Click="OnAddElement"
+                                                Tag="gui" Margin="4 2" Padding="12 8" CornerRadius="4"
+                                                Background="#3A3A4E" BorderThickness="0"
+                                                HorizontalContentAlignment="Left" />
+                                        <Button x:Name="AddPotionBtn" Content="[P] 药水" Click="OnAddElement"
+                                                Tag="potion" Margin="4 2" Padding="12 8" CornerRadius="4"
+                                                Background="#3A3A4E" BorderThickness="0"
+                                                HorizontalContentAlignment="Left" />
+                                        <Button x:Name="AddProjectileBtn" Content="[P] 弹射物" Click="OnAddElement"
+                                                Tag="projectile" Margin="4 2" Padding="12 8" CornerRadius="4"
+                                                Background="#3A3A4E" BorderThickness="0"
+                                                HorizontalContentAlignment="Left" />
+                                        <Button x:Name="AddStructureBtn" Content="[S] 结构" Click="OnAddElement"
+                                                Tag="structure" Margin="4 2" Padding="12 8" CornerRadius="4"
+                                                Background="#3A3A4E" BorderThickness="0"
+                                                HorizontalContentAlignment="Left" />
+                                        <Button x:Name="AddEnchantmentBtn" Content="[E] 附魔" Click="OnAddElement"
+                                                Tag="enchantment" Margin="4 2" Padding="12 8" CornerRadius="4"
+                                                Background="#3A3A4E" BorderThickness="0"
+                                                HorizontalContentAlignment="Left" />
+                                        <Button x:Name="AddKeyBindingBtn" Content="[K] 按键" Click="OnAddElement"
+                                                Tag="keybinding" Margin="4 2" Padding="12 8" CornerRadius="4"
+                                                Background="#3A3A4E" BorderThickness="0"
+                                                HorizontalContentAlignment="Left" />
+                                        <Button x:Name="AddLootTableBtn" Content="[L] 战利品" Click="OnAddElement"
+                                                Tag="loottable" Margin="4 2" Padding="12 8" CornerRadius="4"
+                                                Background="#3A3A4E" BorderThickness="0"
+                                                HorizontalContentAlignment="Left" />
+                                        <Button x:Name="AddOverlayBtn" Content="[O] 覆盖层" Click="OnAddElement"
+                                                Tag="overlay" Margin="4 2" Padding="12 8" CornerRadius="4"
+                                                Background="#3A3A4E" BorderThickness="0"
+                                                HorizontalContentAlignment="Left" />
+                                        <Button x:Name="AddPaintingBtn" Content="[P] 画作" Click="OnAddElement"
+                                                Tag="painting" Margin="4 2" Padding="12 8" CornerRadius="4"
+                                                Background="#3A3A4E" BorderThickness="0"
+                                                HorizontalContentAlignment="Left" />
+                                        <Button x:Name="AddCreativeTabBtn" Content="[C] 创造标签" Click="OnAddElement"
+                                                Tag="creativetab" Margin="4 2" Padding="12 8" CornerRadius="4"
                                                 Background="#3A3A4E" BorderThickness="0"
                                                 HorizontalContentAlignment="Left" />
                                     </StackPanel>

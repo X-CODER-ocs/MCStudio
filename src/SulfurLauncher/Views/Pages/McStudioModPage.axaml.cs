@@ -96,10 +96,12 @@ public partial class McStudioModPage : UserControl, ITioTabPage
         ElementListTitle.Text = $"元素列表 ({ws.ModElements.Count})";
     }
 
-    private void OnAddBlock(object? sender, RoutedEventArgs e) => AddElement("block");
-    private void OnAddItem(object? sender, RoutedEventArgs e) => AddElement("item");
-    private void OnAddEntity(object? sender, RoutedEventArgs e) => AddElement("livingentity");
-    private void OnAddProcedure(object? sender, RoutedEventArgs e) => AddElement("procedure");
+    private void OnAddElement(object? sender, RoutedEventArgs e)
+    {
+        if (_selectedWorkspace == null) return;
+        if (sender is Button { Tag: string tag })
+            AddElement(tag);
+    }
 
     private void AddElement(string type)
     {
