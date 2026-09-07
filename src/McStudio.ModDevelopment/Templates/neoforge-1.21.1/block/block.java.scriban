@@ -1,0 +1,75 @@
+package {{ package }}.block;
+
+import net.minecraft.world.level.block.state.BlockBehaviour.Properties;
+
+public class {{ registryname }}Block extends {{ block_base_class }} {
+
+    {{ if rotation_mode == 1 || rotation_mode == 3 }}
+    public static final DirectionProperty FACING = HorizontalDirectionalBlock.FACING;
+        {{ if enable_pitch }}
+    public static final EnumProperty<AttachFace> FACE = FaceAttachedHorizontalDirectionalBlock.FACE;
+        {{ end }}
+    {{ else if rotation_mode == 2 || rotation_mode == 4 }}
+    public static final DirectionProperty FACING = DirectionalBlock.FACING;
+    {{ else if rotation_mode == 5 }}
+    public static final EnumProperty<Direction.Axis> AXIS = BlockStateProperties.AXIS;
+    {{ end }}
+
+    {{ if is_waterloggable }}
+    public static final BooleanProperty WATERLOGGED = BlockStateProperties.WATERLOGGED;
+    {{ end }}
+
+    public {{ registryname }}Block() {
+        super(Properties.of()
+            {{ if map_color != "" }}.mapColor(MapColor.{{ map_color }}){{ end }}
+            {{ if sound != "" }}.sound(SoundType.{{ sound }}){{ end }}
+            {{ if requires_tool }}.requiresCorrectToolForDrops(){{ end }}
+            .strength({{ hardness }}, {{ resistance }})
+            {{ if light_opacity != 15 }}.lightLevel(blockState -> {{ luminance }}){{ end }}
+            {{ if is_transparent }}.noOcclusion(){{ end }}
+            {{ if is_redstone_conductor == false }}.isRedstoneConductor((state, world, pos) -> false){{ end }}
+            {{ if has_inventory }}.dynamicShape(){{ end }}
+        );
+    }
+
+    {{ if rotation_mode > 0 }}
+    @Override
+    protected BlockState rotate(BlockState state, Rotation rot) {
+        {{ if rotation_mode == 1 || rotation_mode == 3 }}
+        return state.setValue(FACING, rot.rotate(state.getValue(FACING)));
+        {{ else if rotation_mode == 2 || rotation_mode == 4 }}
+        return state.setValue(FACING, rot.rotate(state.getValue(FACING)));
+        {{ else if rotation_mode == 5 }}
+        return state.setValue(AXIS, rot.rotate(state.getValue(AXIS)));
+        {{ end }}
+    }
+
+    @Override
+    protected BlockState mirror(BlockState state, Mirror mirror) {
+        {{ if rotation_mode == 1 || rotation_mode == 3 }}
+        return state.rotate(mirror.getRotation(state.getValue(FACING)));
+        {{ else if rotation_mode == 2 || rotation_mode == 4 }}
+        return state.rotate(mirror.getRotation(state.getValue(FACING)));
+        {{ else if rotation_mode == 5 }}
+        return state.setValue(AXIS, mirror.mirror(state.getValue(AXIS)));
+        {{ end }}
+    }
+    {{ end }}
+
+    {{ if is_waterloggable }}
+    @Override
+    protected FluidState getFluidState(BlockState state) {
+        return state.getValue(WATERLOGGED) ? Fluids.WATER.getSource(false) : super.getFluidState(state);
+    }
+
+    @Override
+    protected BlockState updateShape(BlockState state, Direction direction, BlockState otherState, LevelAccessor world, BlockPos pos, BlockPos otherPos) {
+        if (state.getValue(WATERLOGGED))
+            world.scheduleTick(pos, Fluids.WATER, Fluids.WATER.getTickDelay(world));
+        return super.updateShape(state, direction, otherState, world, pos, otherPos);
+    }
+    {{ end }}
+
+    // Start of user code block block methods
+    // End of user code block block methods
+}

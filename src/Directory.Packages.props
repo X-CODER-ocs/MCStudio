@@ -31,5 +31,6 @@
     <PackageVersion Include="Tmds.DBus" Version="0.94.2" />
     <PackageVersion Include="Xamarin.AndroidX.Core.SplashScreen" Version="1.0.1.15" />
     <PackageVersion Include="PinYinConverterCore" Version="1.0.2" />
+    <PackageVersion Include="Scriban" Version="5.12.1" />
   </ItemGroup>
 </Project>

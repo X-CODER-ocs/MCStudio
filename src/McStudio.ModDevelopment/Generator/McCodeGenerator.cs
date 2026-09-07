@@ -1,5 +1,7 @@
 using System.Text;
 using System.Text.Json;
+using McStudio.ModDevelopment.Element;
+using McStudio.ModDevelopment.Element.Types;
 using McStudio.ModDevelopment.Workspace;
 
 namespace McStudio.ModDevelopment.Generator;
@@ -7,18 +9,19 @@ namespace McStudio.ModDevelopment.Generator;
 /// <summary>
 /// Ported from CCS Generator.java
 /// Generates Minecraft mod source code and resources from workspace definitions.
+/// Uses Scriban template engine for template-based generation.
 /// </summary>
 public class McCodeGenerator : IDisposable
 {
     private readonly McWorkspace _workspace;
     private readonly string _generatorName;
-    private readonly McTemplateEngine _templateEngine;
+    private readonly McScribanTemplateEngine _templateEngine;
 
     public McCodeGenerator(McWorkspace workspace)
     {
         _workspace = workspace;
-        _generatorName = workspace.Settings.CurrentGenerator;
-        _templateEngine = new McTemplateEngine();
+        _generatorName = $"{workspace.Settings.ModLoader}-{workspace.Settings.MinecraftVersion}";
+        _templateEngine = new McScribanTemplateEngine(_generatorName);
     }
 
     public McWorkspace Workspace => _workspace;
@@ -42,7 +45,7 @@ public class McCodeGenerator : IDisposable
             var gradleExt = modLoader == "fabric" ? ".kts" : "";
             File.WriteAllText(Path.Combine(workspaceFolder, $"build.gradle{gradleExt}"), gradleContent);
 
-            // Generate mods.toml / fabric.mod.json
+            // Generate mod metadata using Scriban templates
             if (modLoader == "neoforge" || modLoader == "forge")
             {
                 GenerateNeoForgeFiles(modId, packageName, workspaceFolder);
@@ -52,12 +55,10 @@ public class McCodeGenerator : IDisposable
                 GenerateFabricFiles(modId, packageName, workspaceFolder);
             }
 
-            // Generate package-info.java for each package
+            // Generate main mod class using Scriban template
             var packageDir = Path.Combine(workspaceFolder, "src/main/java",
                 packageName.Replace('.', Path.DirectorySeparatorChar));
             Directory.CreateDirectory(packageDir);
-
-            // Generate main mod class
             GenerateMainModClass(modId, packageName, modLoader, packageDir);
 
             // Generate gradle.properties
@@ -76,7 +77,7 @@ public class McCodeGenerator : IDisposable
     }
 
     /// <summary>
-    /// Generate code for a specific mod element
+    /// Generate code for a specific mod element using Scriban templates
     /// </summary>
     public bool GenerateElement(McModElement element)
     {
@@ -85,16 +86,8 @@ public class McCodeGenerator : IDisposable
             var workspaceFolder = _workspace.GetWorkspaceFolder();
             var packageName = _workspace.Settings.PackageName;
 
-            // Generate the element based on its type
-            var (code, fileName) = element.Type switch
-            {
-                "block" => GenerateBlockElement(element),
-                "item" => GenerateItemElement(element),
-                "livingentity" => GenerateEntityElement(element),
-                "procedure" => GenerateProcedureElement(element),
-                "recipe" => GenerateRecipeElement(element),
-                _ => (null, null)
-            };
+            // Map element type to template name and generate
+            var (code, fileName) = GenerateFromTemplate(element);
 
             if (code != null && fileName != null)
             {
@@ -106,12 +99,185 @@ public class McCodeGenerator : IDisposable
                 element.SetAssociatedFiles([filePath]);
             }
 
+            // Generate JSON resources (models, blockstates, loot tables)
+            GenerateJsonResources(element, workspaceFolder);
+
             return true;
         }
         catch (Exception ex)
         {
             Console.Error.WriteLine($"Failed to generate element {element.Name}: {ex.Message}");
             return false;
+        }
+    }
+
+    private (string? code, string? fileName) GenerateFromTemplate(McModElement element)
+    {
+        var registryName = element.GetRegistryName();
+        var className = ToPascalCase(element.Name);
+        var modId = _workspace.Settings.ModId;
+        var packageName = _workspace.Settings.PackageName;
+
+        var dataModel = new Dictionary<string, object>
+        {
+            ["modid"] = modId,
+            ["package"] = packageName,
+            ["registryname"] = registryName,
+            ["classname"] = className,
+            ["JavaModName"] = ToPascalCase(modId),
+            ["name"] = element.Name,
+        };
+
+        // Add element-specific data
+        var genElement = element.GetGeneratableElement();
+        if (genElement != null)
+        {
+            // Add element properties to data model
+            AddElementProperties(dataModel, genElement);
+        }
+
+        // Determine template path based on element type
+        var templateName = element.Type switch
+        {
+            "block" => "block/block.java.scriban",
+            "item" => "item/item.java.scriban",
+            "livingentity" => "livingentity/livingentity.java.scriban",
+            _ => null
+        };
+
+        if (templateName == null)
+            return (null, null);
+
+        var code = _templateEngine.Render(templateName, dataModel);
+        // Remove .scriban extension from the template path to get the output file name
+        var outputFile = $"{className}{ToPascalCase(element.Type)}.java";
+        return (code, outputFile);
+    }
+
+    private void AddElementProperties(Dictionary<string, object> dataModel, McGeneratableElement element)
+    {
+        if (element is McBlockElement block)
+        {
+            dataModel["block_base_class"] = GetBlockBaseClass(block.BlockBase);
+            dataModel["hardness"] = block.Hardness;
+            dataModel["resistance"] = block.Resistance;
+            dataModel["luminance"] = block.Luminance;
+            dataModel["light_opacity"] = block.LightOpacity;
+            dataModel["is_transparent"] = block.IsTransparent;
+            dataModel["is_waterloggable"] = false; // Simplified
+            dataModel["is_redstone_conductor"] = block.IsRedstoneConductor;
+            dataModel["rotation_mode"] = block.RotationMode;
+            dataModel["enable_pitch"] = block.EnablePitch;
+            dataModel["requires_tool"] = block.RequiresCorrectTool;
+            dataModel["has_inventory"] = false; // Simplified
+            dataModel["map_color"] = block.BlockMapColor ?? "";
+            dataModel["sound"] = "";
+        }
+        else if (element is McItemElement item)
+        {
+            dataModel["stack_size"] = item.StackSize;
+            dataModel["durability"] = 0;
+            dataModel["is_food"] = item.IsFood ?? false;
+            dataModel["nutrition"] = item.Nutrition ?? 0;
+            dataModel["saturation_mod"] = item.SaturationMod ?? 0.6;
+            dataModel["always_edible"] = item.AlwaysEdible ?? false;
+            dataModel["is_meat"] = item.IsMeat ?? false;
+            dataModel["is_fast_food"] = item.IsFastFood ?? false;
+        }
+        else if (element is McLivingEntityElement entity)
+        {
+            dataModel["entity_base_class"] = "PathfinderMob";
+            dataModel["health"] = entity.Health;
+            dataModel["movement_speed"] = entity.MovementSpeed;
+            dataModel["attack_damage"] = entity.AttackDamage;
+            dataModel["armor_base_value"] = entity.ArmorBaseValue ?? 0;
+            dataModel["knockback_resistance"] = entity.KnockbackResistance ?? 0;
+            dataModel["follow_range"] = entity.FollowRange ?? 0;
+            dataModel["xp_reward"] = 0;
+        }
+    }
+
+    private void GenerateJsonResources(McModElement element, string workspaceFolder)
+    {
+        var modId = _workspace.Settings.ModId;
+        var registryName = element.GetRegistryName();
+        var resourcesDir = Path.Combine(workspaceFolder, "src/main/resources");
+
+        if (element.Type == "block")
+        {
+            // Blockstate JSON
+            var blockstateData = new Dictionary<string, object>
+            {
+                ["modid"] = modId,
+                ["registryname"] = registryName
+            };
+            var blockstate = _templateEngine.Render("json/blockstate.json.scriban", blockstateData);
+            if (blockstate != null)
+            {
+                var blockstateDir = Path.Combine(resourcesDir, "assets", modId, "blockstates");
+                Directory.CreateDirectory(blockstateDir);
+                File.WriteAllText(Path.Combine(blockstateDir, $"{registryName}.json"), blockstate);
+            }
+
+            // Block model JSON
+            var modelData = new Dictionary<string, object>
+            {
+                ["parent"] = "block/cube_all",
+                ["textures"] = new[] { new { key = "all", value = $"{modId}:block/{registryName}" } },
+                ["render_type"] = ""
+            };
+            var model = _templateEngine.Render("json/block_model.json.scriban",
+                new Dictionary<string, object> { ["parent"] = "block/cube_all", ["textures"] = "", ["render_type"] = "" });
+            if (model != null)
+            {
+                var modelsDir = Path.Combine(resourcesDir, "assets", modId, "models", "block");
+                Directory.CreateDirectory(modelsDir);
+                File.WriteAllText(Path.Combine(modelsDir, $"{registryName}.json"), model);
+            }
+
+            // Item model for block item
+            var itemModelData = new Dictionary<string, object>
+            {
+                ["modid"] = modId,
+                ["texture"] = registryName
+            };
+            var itemModel = _templateEngine.Render("json/item_model.json.scriban", itemModelData);
+            if (itemModel != null)
+            {
+                var itemModelsDir = Path.Combine(resourcesDir, "assets", modId, "models", "item");
+                Directory.CreateDirectory(itemModelsDir);
+                File.WriteAllText(Path.Combine(itemModelsDir, $"{registryName}.json"), itemModel);
+            }
+
+            // Loot table JSON
+            var lootData = new Dictionary<string, object>
+            {
+                ["modid"] = modId,
+                ["registryname"] = registryName
+            };
+            var lootTable = _templateEngine.Render("json/loot_table.json.scriban", lootData);
+            if (lootTable != null)
+            {
+                var lootDir = Path.Combine(resourcesDir, "data", modId, "loot_table", "blocks");
+                Directory.CreateDirectory(lootDir);
+                File.WriteAllText(Path.Combine(lootDir, $"{registryName}.json"), lootTable);
+            }
+        }
+        else if (element.Type == "item")
+        {
+            // Item model JSON
+            var itemModelData = new Dictionary<string, object>
+            {
+                ["modid"] = modId,
+                ["texture"] = registryName
+            };
+            var itemModel = _templateEngine.Render("json/item_model.json.scriban", itemModelData);
+            if (itemModel != null)
+            {
+                var itemModelsDir = Path.Combine(resourcesDir, "assets", modId, "models", "item");
+                Directory.CreateDirectory(itemModelsDir);
+                File.WriteAllText(Path.Combine(itemModelsDir, $"{registryName}.json"), itemModel);
+            }
         }
     }
 
@@ -283,115 +449,6 @@ public class {className} implements ModInitializer {{
         File.WriteAllText(filePath, code);
     }
 
-    private (string? code, string? fileName) GenerateBlockElement(McModElement element)
-    {
-        var packageName = _workspace.Settings.PackageName;
-        var modId = _workspace.Settings.ModId;
-        var registryName = element.GetRegistryName();
-        var className = ToPascalCase(element.Name);
-
-        var code = $@"package {packageName};
-
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.SoundType;
-import net.minecraft.world.level.block.state.BlockBehaviour;
-import net.minecraft.world.item.BlockItem;
-import net.minecraft.world.item.Item;
-import net.minecraft.core.registries.Registries;
-import net.neoforged.neoforge.registries.DeferredRegister;
-
-import java.util.function.Supplier;
-
-public class {className}Block extends Block {{
-    public static final DeferredRegister<Block> BLOCKS =
-        DeferredRegister.create(Registries.BLOCK, ""{modId}"");
-    public static final DeferredRegister<Item> ITEMS =
-        DeferredRegister.create(Registries.ITEM, ""{modId}"");
-
-    public static final Supplier<Block> {element.Name.ToUpperInvariant()} =
-        BLOCKS.register(""{registryName}"", () -> new {className}Block());
-
-    public {className}Block() {{
-        super(BlockBehaviour.Properties.of()
-            .strength(1.5f, 6.0f)
-            .sound(SoundType.STONE)
-            .requiresCorrectToolForDrops());
-    }}
-
-    public static void registerBlockItem() {{
-        ITEMS.register(""{registryName}"", () -> new BlockItem({element.Name.ToUpperInvariant()}.get(),
-            new Item.Properties()));
-    }}
-}}
-";
-        return (code, $"{className}Block.java");
-    }
-
-    private (string? code, string? fileName) GenerateItemElement(McModElement element)
-    {
-        var packageName = _workspace.Settings.PackageName;
-        var modId = _workspace.Settings.ModId;
-        var registryName = element.GetRegistryName();
-        var className = ToPascalCase(element.Name);
-
-        var code = $@"package {packageName};
-
-import net.minecraft.world.item.Item;
-import net.minecraft.core.registries.Registries;
-import net.neoforged.neoforge.registries.DeferredRegister;
-
-import java.util.function.Supplier;
-
-public class {className}Item extends Item {{
-    public static final DeferredRegister<Item> ITEMS =
-        DeferredRegister.create(Registries.ITEM, ""{modId}"");
-
-    public static final Supplier<Item> {element.Name.ToUpperInvariant()} =
-        ITEMS.register(""{registryName}"", () -> new {className}Item());
-
-    public {className}Item() {{
-        super(new Item.Properties().stacksTo(64));
-    }}
-}}
-";
-        return (code, $"{className}Item.java");
-    }
-
-    private (string? code, string? fileName) GenerateEntityElement(McModElement element)
-    {
-        var packageName = _workspace.Settings.PackageName;
-        var modId = _workspace.Settings.ModId;
-        var registryName = element.GetRegistryName();
-        var className = ToPascalCase(element.Name);
-
-        var code = $@"package {packageName};
-
-import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.MobCategory;
-import net.minecraft.world.entity.PathfinderMob;
-import net.minecraft.world.level.Level;
-import net.minecraft.core.registries.Registries;
-import net.neoforged.neoforge.registries.DeferredRegister;
-
-import java.util.function.Supplier;
-
-public class {className}Entity extends PathfinderMob {{
-    public static final DeferredRegister<EntityType<?>> ENTITIES =
-        DeferredRegister.create(Registries.ENTITY_TYPE, ""{modId}"");
-
-    public static final Supplier<EntityType<{className}Entity>> {element.Name.ToUpperInvariant()} =
-        ENTITIES.register(""{registryName}"",
-            () -> EntityType.Builder.of<{className}Entity>({className}Entity::new, MobCategory.CREATURE)
-                .sized(0.6f, 1.8f).build(""{registryName}""));
-
-    public {className}Entity(EntityType<{className}Entity> type, Level level) {{
-        super(type, level);
-    }}
-}}
-";
-        return (code, $"{className}Entity.java");
-    }
-
     private (string? code, string? fileName) GenerateProcedureElement(McModElement element)
     {
         var packageName = _workspace.Settings.PackageName;
@@ -435,6 +492,23 @@ public class {className}Procedure {{
 }}
 ";
         return (code, $"{registryName}.json");
+    }
+
+    private static string GetBlockBaseClass(string? blockBase)
+    {
+        return blockBase switch
+        {
+            "Stairs" => "StairBlock",
+            "Slab" => "SlabBlock",
+            "Fence" => "FenceBlock",
+            "Wall" => "WallBlock",
+            "TrapDoor" => "TrapDoorBlock",
+            "Door" => "DoorBlock",
+            "FenceGate" => "FenceGateBlock",
+            "PressurePlate" => "PressurePlateBlock",
+            "Button" => "ButtonBlock",
+            _ => "Block"
+        };
     }
 
     private static string ToPascalCase(string name)

@@ -1,0 +1,11 @@
+package {{ package }}.init;
+
+import net.minecraft.world.level.levelgen.feature.Feature;
+
+public class {{ JavaModName }}Features {
+    public static final DeferredRegister<Feature<?>> REGISTRY = DeferredRegister.create(Registries.FEATURE, {{ JavaModName }}.MODID);
+
+    {{ for feature in features }}
+    public static final DeferredHolder<Feature<?>, Feature<?>> {{ feature.field_name }} = REGISTRY.register("{{ feature.registry_name }}", {{ feature.class_name }}::new);
+    {{ end }}
+}

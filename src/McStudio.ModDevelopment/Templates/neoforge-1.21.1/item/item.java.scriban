@@ -1,0 +1,24 @@
+package {{ package }}.item;
+
+import net.minecraft.world.item.Item;
+
+public class {{ registryname }}Item extends Item {
+    public {{ registryname }}Item() {
+        super(new Item.Properties()
+            .stacksTo({{ stack_size }})
+            {{ if durability > 0 }}.durability({{ durability }}){{ end }}
+            {{ if is_food }}
+            .food(new FoodProperties.Builder()
+                .nutrition({{ nutrition }})
+                .saturationModifier({{ saturation_mod }}f)
+                {{ if always_edible }}.alwaysEdible(){{ end }}
+                {{ if is_meat }}.meat(){{ end }}
+                {{ if is_fast_food }}.fast(){{ end }}
+                .build())
+            {{ end }}
+        );
+    }
+
+    // Start of user code block item methods
+    // End of user code block item methods
+}

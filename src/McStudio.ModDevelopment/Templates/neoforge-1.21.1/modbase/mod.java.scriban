@@ -1,0 +1,67 @@
+package {{ package }};
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
+@Mod("{{ modid }}") public class {{ JavaModName }} {
+
+    public static final Logger LOGGER = LogManager.getLogger({{ JavaModName }}.class);
+
+    public static final String MODID = "{{ modid }}";
+
+    public {{ JavaModName }}(IEventBus modEventBus) {
+        // Start of user code block mod constructor
+        // End of user code block mod constructor
+
+        NeoForge.EVENT_BUS.register(this);
+
+        modEventBus.addListener(this::registerNetworking);
+
+        {{ if has_sounds }}{{ JavaModName }}Sounds.REGISTRY.register(modEventBus);{{ end }}
+        {{ if has_blocks }}{{ JavaModName }}Blocks.REGISTRY.register(modEventBus);{{ end }}
+        {{ if has_blockentities }}{{ JavaModName }}BlockEntities.REGISTRY.register(modEventBus);{{ end }}
+        {{ if has_items }}{{ JavaModName }}Items.REGISTRY.register(modEventBus);{{ end }}
+        {{ if has_entities }}{{ JavaModName }}Entities.REGISTRY.register(modEventBus);{{ end }}
+        {{ if has_tabs }}{{ JavaModName }}Tabs.REGISTRY.register(modEventBus);{{ end }}
+        {{ if has_variables }}{{ JavaModName }}Variables.ATTACHMENT_TYPES.register(modEventBus);{{ end }}
+        {{ if has_features }}{{ JavaModName }}Features.REGISTRY.register(modEventBus);{{ end }}
+        {{ if has_potions }}{{ JavaModName }}Potions.REGISTRY.register(modEventBus);{{ end }}
+        {{ if has_potion_effects }}{{ JavaModName }}MobEffects.REGISTRY.register(modEventBus);{{ end }}
+        {{ if has_guis }}{{ JavaModName }}Menus.REGISTRY.register(modEventBus);{{ end }}
+        {{ if has_particles }}{{ JavaModName }}ParticleTypes.REGISTRY.register(modEventBus);{{ end }}
+        {{ if has_fluids }}
+            {{ JavaModName }}Fluids.REGISTRY.register(modEventBus);
+            {{ JavaModName }}FluidTypes.REGISTRY.register(modEventBus);
+        {{ end }}
+        {{ if has_attributes }}{{ JavaModName }}Attributes.REGISTRY.register(modEventBus);{{ end }}
+
+        // Start of user code block mod init
+        // End of user code block mod init
+    }
+
+    // Start of user code block mod methods
+    // End of user code block mod methods
+
+    private static boolean networkingRegistered = false;
+    private static final Map<CustomPacketPayload.Type<?>, NetworkMessage<?>> MESSAGES = new HashMap<>();
+
+    private record NetworkMessage<T extends CustomPacketPayload>(StreamCodec<? extends FriendlyByteBuf, T> reader, IPayloadHandler<T> handler) {}
+
+    public static <T extends CustomPacketPayload> void addNetworkMessage(CustomPacketPayload.Type<T> id, StreamCodec<? extends FriendlyByteBuf, T> reader, IPayloadHandler<T> handler) {
+        if (networkingRegistered)
+            throw new IllegalStateException("Cannot register new network messages after networking has been registered");
+        MESSAGES.put(id, new NetworkMessage<>(reader, handler));
+    }
+
+    private static boolean registered(int index) {
+        if (networkingRegistered)
+            throw new IllegalStateException("Cannot register new network messages after networking has been registered");
+        return true;
+    }
+
+    private void registerNetworking(RegisterPayloadHandlersEvent event) {
+        networkingRegistered = true;
+        var registrar = event.registrar("{{ modid }}");
+        MESSAGES.forEach((id, msg) -> registrar.playBidirectional(id, msg.reader, msg.handler));
+    }
+}

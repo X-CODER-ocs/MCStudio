@@ -1,0 +1,12 @@
+package {{ package }}.init;
+
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.resources.ResourceLocation;
+
+public class {{ JavaModName }}Sounds {
+    public static final DeferredRegister<SoundEvent> REGISTRY = DeferredRegister.create(Registries.SOUND_EVENTS, {{ JavaModName }}.MODID);
+
+    {{ for sound in sounds }}
+    public static final DeferredHolder<SoundEvent, SoundEvent> {{ sound.field }} = REGISTRY.register("{{ sound.name }}", () -> SoundEvent.createVariableRangeEvent(ResourceLocation.fromNamespaceAndPath({{ JavaModName }}.MODID, "{{ sound.name }}")));
+    {{ end }}
+}

@@ -1,0 +1,11 @@
+package {{ package }}.init;
+
+import net.minecraft.world.item.Item;
+
+public class {{ JavaModName }}Items {
+    public static final DeferredRegister<Item> REGISTRY = DeferredRegister.create(Registries.ITEM, {{ JavaModName }}.MODID);
+
+    {{ for item in items }}
+    public static final DeferredHolder<Item, {{ item.class_name }}> {{ item.field_name }} = REGISTRY.register("{{ item.registry_name }}", {{ item.class_name }}::new);
+    {{ end }}
+}

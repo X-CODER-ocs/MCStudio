@@ -1,4 +1,6 @@
 using System.Text.Json.Serialization;
+using McStudio.ModDevelopment.Element;
+using McStudio.ModDevelopment.Element.Types;
 
 namespace McStudio.ModDevelopment.Workspace;
 
@@ -71,6 +73,48 @@ public class McModElement : IEquatable<McModElement>
     public void SetParentFolder(string? path)
     {
         FolderPath = path;
+    }
+
+    /// <summary>
+    /// Get the generatable element data for this mod element.
+    /// Ported from CCS ModElement.getGeneratableElement()
+    /// </summary>
+    public McGeneratableElement? GetGeneratableElement()
+    {
+        if (Metadata.TryGetValue("generatable_data", out var data) && data is McGeneratableElement genElement)
+            return genElement;
+
+        // Create appropriate generatable element based on type
+        McGeneratableElement? result = Type switch
+        {
+            "block" => new McBlockElement(this),
+            "item" => new McItemElement(this),
+            "livingentity" => new McLivingEntityElement(this),
+            "armor" => new McArmorElement(this),
+            "tool" => new McToolElement(this),
+            "biome" => new McBiomeElement(this),
+            "dimension" => new McDimensionElement(this),
+            "feature" => new McFeatureElement(this),
+            "fluid" => new McFluidElement(this),
+            "gui" => new McGuiElement(this),
+            "plant" => new McPlantElement(this),
+            "potion" => new McPotionElement(this),
+            "procedure" => new McProcedureElement(this),
+            "projectile" => new McProjectileElement(this),
+            "enchantment" => new McEnchantmentElement(this),
+            "keybinding" => new McKeyBindingElement(this),
+            "loottable" => new McLootTableElement(this),
+            "overlay" => new McOverlayElement(this),
+            "painting" => new McPaintingElement(this),
+            "structure" => new McStructureElement(this),
+            "recipe" => new McRecipeElement(this),
+            "creativetab" => new McTabElement(this),
+            _ => null
+        };
+
+        if (result != null)
+            Metadata["generatable_data"] = result;
+        return result;
     }
 
     public override string ToString() => Name;

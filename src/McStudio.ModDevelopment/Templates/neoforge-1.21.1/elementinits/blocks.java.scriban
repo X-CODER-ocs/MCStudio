@@ -1,0 +1,11 @@
+package {{ package }}.init;
+
+import net.minecraft.world.level.block.Block;
+
+public class {{ JavaModName }}Blocks {
+    public static final DeferredRegister.Blocks REGISTRY = DeferredRegister.createBlocks({{ JavaModName }}.MODID);
+
+    {{ for block in blocks }}
+    public static final DeferredHolder<Block, {{ block.class_name }}> {{ block.field_name }} = REGISTRY.register("{{ block.registry_name }}", {{ block.class_name }}::new);
+    {{ end }}
+}

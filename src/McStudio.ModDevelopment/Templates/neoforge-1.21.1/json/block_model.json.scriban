@@ -1,0 +1,13 @@
+{
+  "parent": "{{ parent }}",
+  {{ if textures != "" }}
+  "textures": {
+    {{ for texture in textures }}
+    "{{ texture.key }}": "{{ texture.value }}"{{ if !for.last }},{{ end }}
+    {{ end }}
+  },
+  {{ end }}
+  {{ if render_type != "" }}
+  "render_type": "{{ render_type }}"
+  {{ end }}
+}

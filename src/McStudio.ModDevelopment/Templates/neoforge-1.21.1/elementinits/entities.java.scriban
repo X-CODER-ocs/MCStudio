@@ -1,0 +1,14 @@
+package {{ package }}.init;
+
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.MobCategory;
+
+public class {{ JavaModName }}Entities {
+    public static final DeferredRegister<EntityType<?>> REGISTRY = DeferredRegister.create(Registries.ENTITY_TYPE, {{ JavaModName }}.MODID);
+
+    {{ for entity in entities }}
+    public static final DeferredHolder<EntityType<?>, EntityType<{{ entity.class_name }}>> {{ entity.field_name }} = REGISTRY.register("{{ entity.registry_name }}",
+        () -> EntityType.Builder.of({{ entity.class_name }}::new, MobCategory.{{ entity.category }})
+            .sized({{ entity.width }}f, {{ entity.height }}f).build("{{ entity.registry_name }}"));
+    {{ end }}
+}

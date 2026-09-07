@@ -1,0 +1,20 @@
+package {{ package }}.init;
+
+import net.minecraft.world.item.CreativeModeTab;
+
+public class {{ JavaModName }}Tabs {
+    public static final DeferredRegister<CreativeModeTab> REGISTRY = DeferredRegister.create(Registries.CREATIVE_MODE_TAB, {{ JavaModName }}.MODID);
+
+    {{ for tab in tabs }}
+    public static final DeferredHolder<CreativeModeTab, CreativeModeTab> {{ tab.field_name }} = REGISTRY.register("{{ tab.registry_name }}",
+        () -> CreativeModeTab.builder()
+            .title(Component.translatable("item_group.{{ tab.registry_name }}"))
+            .icon(() -> {{ tab.icon_item }})
+            .displayItems((parameters, output) -> {
+                {{ for item in tab.items }}
+                output.accept({{ item }});
+                {{ end }}
+            })
+            .build());
+    {{ end }}
+}
