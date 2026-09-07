@@ -1,0 +1,12 @@
+package {{ package }}.init;
+
+import net.minecraft.world.level.block.entity.BlockEntityType;
+
+public class {{ JavaModName }}BlockEntities {
+    public static final DeferredRegister<BlockEntityType<?>> REGISTRY = DeferredRegister.create(Registries.BLOCK_ENTITY_TYPE, {{ JavaModName }}.MODID);
+
+    {{ for be in blockentities }}
+    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<?>> {{ be.field_name }} = REGISTRY.register("{{ be.registry_name }}",
+        () -> BlockEntityType.Builder.of({{ be.class_name }}::new, {{ be.blocks }}).build(null));
+    {{ end }}
+}

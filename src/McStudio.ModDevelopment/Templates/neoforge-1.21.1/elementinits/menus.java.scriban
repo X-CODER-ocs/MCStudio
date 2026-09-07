@@ -1,0 +1,12 @@
+package {{ package }}.init;
+
+import net.minecraft.world.inventory.MenuType;
+
+public class {{ JavaModName }}Menus {
+    public static final DeferredRegister<MenuType<?>> REGISTRY = DeferredRegister.create(Registries.MENU, {{ JavaModName }}.MODID);
+
+    {{ for menu in menus }}
+    public static final DeferredHolder<MenuType<?>, MenuType<?>> {{ menu.field_name }} = REGISTRY.register("{{ menu.registry_name }}",
+        () -> new MenuType<>({{ menu.class_name }}::new));
+    {{ end }}
+}

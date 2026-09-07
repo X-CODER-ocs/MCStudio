@@ -1,0 +1,10 @@
+package {{ package }}.init;
+
+import net.minecraft.world.level.block.state.properties.BlockSetType;
+import net.minecraft.world.level.block.state.properties.WoodType;
+
+public class {{ JavaModName }}WoodTypes {
+    {{ for wood in woodtypes }}
+    public static final WoodType {{ wood.field_name }} = WoodType.register(new WoodType("{{ modid }}:{{ wood.registry_name }}", BlockSetType.{{ wood.block_set_type }}));
+    {{ end }}
+}

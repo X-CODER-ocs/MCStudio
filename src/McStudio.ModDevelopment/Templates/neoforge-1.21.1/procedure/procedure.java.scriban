@@ -1,0 +1,19 @@
+package {{ package }}.procedures;
+
+import net.minecraft.world.level.LevelAccessor;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.core.BlockPos;
+
+public class {{ registryname }}Procedure {
+    public static void execute(LevelAccessor world, double x, double y, double z, Entity entity) {
+        if (entity == null)
+            return;
+
+        // Start of user code block procedure logic
+        // End of user code block procedure logic
+    }
+
+    // Start of user code block procedure methods
+    // End of user code block procedure methods
+}

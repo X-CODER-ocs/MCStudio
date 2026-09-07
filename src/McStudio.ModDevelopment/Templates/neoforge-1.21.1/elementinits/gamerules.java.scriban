@@ -1,0 +1,10 @@
+package {{ package }}.init;
+
+import net.minecraft.world.level.GameRules;
+
+public class {{ JavaModName }}GameRules {
+    {{ for rule in gamerules }}
+    public static final GameRules.Key<{{ rule.type }}> {{ rule.field_name }} = GameRules.register("{{ rule.registry_name }}", GameRules.Category.{{ rule.category }},
+        {{ rule.type }}.create({{ rule.default_value }}));
+    {{ end }}
+}

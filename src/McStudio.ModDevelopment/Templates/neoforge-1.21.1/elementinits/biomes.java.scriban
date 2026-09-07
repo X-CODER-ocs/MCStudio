@@ -1,0 +1,12 @@
+package {{ package }}.init;
+
+import net.minecraft.world.level.biome.Biome;
+
+public class {{ JavaModName }}Biomes {
+    public static final DeferredRegister<Biome> REGISTRY = DeferredRegister.create(Registries.BIOME, {{ JavaModName }}.MODID);
+
+    {{ for biome in biomes }}
+    public static final DeferredHolder<Biome, Biome> {{ biome.field_name }} = REGISTRY.register("{{ biome.registry_name }}",
+        () -> {{ biome.class_name }}.generateBiome());
+    {{ end }}
+}

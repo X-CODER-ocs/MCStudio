@@ -1,0 +1,15 @@
+package {{ package }}.init;
+
+import net.minecraft.world.level.material.Fluid;
+import net.neoforged.neoforge.fluids.BaseFlowingFluid;
+
+public class {{ JavaModName }}Fluids {
+    public static final DeferredRegister<Fluid> REGISTRY = DeferredRegister.create(Registries.FLUID, {{ JavaModName }}.MODID);
+
+    {{ for fluid in fluids }}
+    public static final DeferredHolder<Fluid, Fluid> {{ fluid.field_name }} = REGISTRY.register("{{ fluid.registry_name }}",
+        () -> {{ fluid.class_name }}.Source::new);
+    public static final DeferredHolder<Fluid, Fluid> FLOWING_{{ fluid.field_name }} = REGISTRY.register("flowing_{{ fluid.registry_name }}",
+        () -> {{ fluid.class_name }}.Flowing::new);
+    {{ end }}
+}

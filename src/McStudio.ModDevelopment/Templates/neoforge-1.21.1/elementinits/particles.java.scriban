@@ -1,0 +1,13 @@
+package {{ package }}.init;
+
+import net.minecraft.core.particles.ParticleType;
+import net.minecraft.core.particles.SimpleParticleType;
+
+public class {{ JavaModName }}ParticleTypes {
+    public static final DeferredRegister<ParticleType<?>> REGISTRY = DeferredRegister.create(Registries.PARTICLE_TYPE, {{ JavaModName }}.MODID);
+
+    {{ for particle in particles }}
+    public static final DeferredHolder<ParticleType<?>, SimpleParticleType> {{ particle.field_name }} = REGISTRY.register("{{ particle.registry_name }}",
+        () -> new SimpleParticleType(false));
+    {{ end }}
+}

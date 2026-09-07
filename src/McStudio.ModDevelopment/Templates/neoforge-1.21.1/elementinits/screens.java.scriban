@@ -1,0 +1,20 @@
+package {{ package }}.init;
+
+import net.neoforged.neoforge.client.event.RegisterMenuScreensEvent;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.api.distmarker.OnlyIn;
+import net.neoforged.api.distmarker.Dist;
+
+@OnlyIn(Dist.CLIENT)
+@EventBusSubscriber(modid = {{ JavaModName }}.MODID, value = Dist.CLIENT)
+public class {{ JavaModName }}Screens {
+    public interface ScreenAccessor {}
+
+    @SubscribeEvent
+    public static void registerScreens(RegisterMenuScreensEvent event) {
+        {{ for screen in screens }}
+        event.register({{ JavaModName }}Menus.{{ screen.menu_field }}.get(), {{ screen.screen_class }}::new);
+        {{ end }}
+    }
+}

@@ -1,0 +1,52 @@
+package {{ package }}.client.gui;
+
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.Level;
+import net.neoforged.neoforge.client.event.RenderGuiEvent;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.api.distmarker.OnlyIn;
+import net.neoforged.api.distmarker.Dist;
+
+@OnlyIn(Dist.CLIENT)
+@EventBusSubscriber(modid = {{ JavaModName }}.MODID, value = Dist.CLIENT)
+public class {{ registryname }}Overlay {
+
+    {{ if overlay_base == "screen" }}
+    @SubscribeEvent
+    public static void eventHandler(RenderGuiEvent.Pre event) {
+        if (!(event.getGuiGraphics().gui() instanceof Screen screen))
+            return;
+        var guiGraphics = event.getGuiGraphics();
+        var world = screen.getMinecraft().level;
+        var entity = screen.getMinecraft().player;
+        if (world == null || entity == null)
+            return;
+        int w = guiGraphics.guiWidth();
+        int h = guiGraphics.guiHeight();
+        renderOverlay(guiGraphics, world, entity, w, h);
+    }
+    {{ else }}
+    @SubscribeEvent
+    public static void eventHandler(RenderGuiEvent.Pre event) {
+        var guiGraphics = event.getGuiGraphics();
+        var world = event.getGuiGraphics().gui().getMinecraft().level;
+        var entity = event.getGuiGraphics().gui().getMinecraft().player;
+        if (world == null || entity == null)
+            return;
+        int w = guiGraphics.guiWidth();
+        int h = guiGraphics.guiHeight();
+        renderOverlay(guiGraphics, world, entity, w, h);
+    }
+    {{ end }}
+
+    private static void renderOverlay(GuiGraphics guiGraphics, Level world, Player entity, int w, int h) {
+        // TODO: custom overlay rendering
+    }
+
+    // Start of user code block overlay methods
+    // End of user code block overlay methods
+}

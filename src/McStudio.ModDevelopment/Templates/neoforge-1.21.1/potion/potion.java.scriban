@@ -1,0 +1,22 @@
+package {{ package }}.world.item;
+
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.item.alchemy.Potion;
+import net.minecraft.world.item.alchemy.Potions;
+import net.minecraft.world.item.alchemy.PotionBrewing;
+import net.minecraft.core.registries.Registries;
+import net.neoforged.neoforge.registries.DeferredRegister;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.neoforge.event.brewing.RegisterBrewingRecipesEvent;
+
+public class {{ registryname }}Potion {
+    public static final DeferredRegister<Potion> REGISTRY = DeferredRegister.create(Registries.POTION, "{{ modid }}");
+
+    {{ if potion_effects }}
+    public static final DeferredHolder<Potion, Potion> {{ registryname_upper }} = REGISTRY.register("{{ registryname }}",
+        () -> new Potion(new MobEffectInstance({{ effect }}, {{ duration }}, {{ amplifier }})));
+    {{ end }}
+
+    // Start of user code block potion methods
+    // End of user code block potion methods
+}

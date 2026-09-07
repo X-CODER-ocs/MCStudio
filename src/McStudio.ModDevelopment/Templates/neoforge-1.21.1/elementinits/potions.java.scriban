@@ -1,0 +1,12 @@
+package {{ package }}.init;
+
+import net.minecraft.world.item.alchemy.Potion;
+
+public class {{ JavaModName }}Potions {
+    public static final DeferredRegister<Potion> REGISTRY = DeferredRegister.create(Registries.POTION, {{ JavaModName }}.MODID);
+
+    {{ for potion in potions }}
+    public static final DeferredHolder<Potion, Potion> {{ potion.field_name }} = REGISTRY.register("{{ potion.registry_name }}",
+        () -> {{ potion.class_name }});
+    {{ end }}
+}

@@ -1,0 +1,45 @@
+package {{ package }}.item;
+
+import net.minecraft.world.item.Tier;
+import net.minecraft.world.item.Tiers;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.item.crafting.Ingredient;
+import net.minecraft.tags.BlockTags;
+import net.minecraft.tags.TagKey;
+import net.minecraft.world.level.block.Block;
+
+{{ if tool_type == "Pickaxe" || tool_type == "Axe" || tool_type == "Sword" || tool_type == "Spade" || tool_type == "Hoe" || tool_type == "MultiTool" || tool_type == "Shears" || tool_type == "Shield" }}
+public class {{ registryname }}Item extends {{ tool_base_class }}Item {
+
+    {{ if tool_type == "Pickaxe" || tool_type == "Axe" || tool_type == "Sword" || tool_type == "Spade" || tool_type == "Hoe" || tool_type == "MultiTool" }}
+    private static final Tier TOOL_TIER = new Tier() {
+        @Override public int getUses() { return {{ usage_count }}; }
+        @Override public float getSpeed() { return {{ efficiency }}f; }
+        @Override public float getAttackDamageBonus() { return 0; }
+        @Override public TagKey<Block> getIncorrectBlocksForDrops() {
+            {{ if block_drops_tier == "WOOD" }}return BlockTags.INCORRECT_FOR_WOODEN_TOOL;
+            {{ else if block_drops_tier == "STONE" }}return BlockTags.INCORRECT_FOR_STONE_TOOL;
+            {{ else if block_drops_tier == "IRON" }}return BlockTags.INCORRECT_FOR_IRON_TOOL;
+            {{ else if block_drops_tier == "DIAMOND" }}return BlockTags.INCORRECT_FOR_DIAMOND_TOOL;
+            {{ else if block_drops_tier == "GOLD" }}return BlockTags.INCORRECT_FOR_GOLD_TOOL;
+            {{ else }}return BlockTags.INCORRECT_FOR_NETHERITE_TOOL;{{ end }}
+        }
+        @Override public int getEnchantmentValue() { return {{ enchantability }}; }
+        @Override public Ingredient getRepairIngredient() {
+            return Ingredient.of({{ repair_items }});
+        }
+    };
+    {{ end }}
+
+    public {{ registryname }}Item() {
+        super({{ tool_tier_arg }}, new Item.Properties()
+            .stacksTo(1)
+            {{ if durability > 0 }}.durability({{ durability }}){{ end }}
+        );
+    }
+
+    // Start of user code block tool methods
+    // End of user code block tool methods
+}
+{{ end }}

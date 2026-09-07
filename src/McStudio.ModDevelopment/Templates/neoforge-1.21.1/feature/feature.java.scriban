@@ -1,0 +1,30 @@
+package {{ package }}.world.features;
+
+import net.minecraft.world.level.levelgen.feature.Feature;
+import net.minecraft.world.level.levelgen.feature.FeaturePlaceContext;
+import net.minecraft.world.level.levelgen.feature.configurations.FeatureConfiguration;
+import net.minecraft.world.level.levelgen.feature.configurations.NoneFeatureConfiguration;
+import net.minecraft.world.level.WorldGenLevel;
+import net.minecraft.core.BlockPos;
+
+public class {{ registryname }}Feature extends Feature<{{ feature_configuration }}> {
+
+    public {{ registryname }}Feature() {
+        super({{ feature_configuration }}.CODEC);
+    }
+
+    @Override
+    public boolean place(FeaturePlaceContext<{{ feature_configuration }}> context) {
+        {{ if generate_condition }}
+        WorldGenLevel world = context.level();
+        BlockPos pos = context.origin();
+        if (!{{ generate_condition }})
+            return false;
+        {{ end }}
+
+        return super.place(context);
+    }
+
+    // Start of user code block feature methods
+    // End of user code block feature methods
+}

@@ -1,0 +1,13 @@
+package {{ package }}.init;
+
+import net.minecraft.core.registries.Registries;
+import net.minecraft.world.entity.ai.attributes.Attribute;
+
+public class {{ JavaModName }}Attributes {
+    public static final DeferredRegister<Attribute> REGISTRY = DeferredRegister.create(Registries.ATTRIBUTE, {{ JavaModName }}.MODID);
+
+    {{ for attribute in attributes }}
+    public static final DeferredHolder<Attribute, Attribute> {{ attribute.field_name }} = REGISTRY.register("{{ attribute.registry_name }}",
+        () -> new RangedAttribute("attribute.{{ modid }}.{{ attribute.registry_name }}", {{ attribute.default_value }}, {{ attribute.min_value }}, {{ attribute.max_value }}));
+    {{ end }}
+}

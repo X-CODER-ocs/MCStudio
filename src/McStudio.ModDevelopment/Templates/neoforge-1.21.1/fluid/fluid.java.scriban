@@ -1,0 +1,61 @@
+package {{ package }}.fluid;
+
+import net.minecraft.world.level.material.FlowingFluid;
+import net.minecraft.world.level.material.Fluid;
+import net.minecraft.world.level.material.FluidState;
+import net.minecraft.world.level.block.state.StateDefinition;
+import net.minecraft.world.level.block.LiquidBlock;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.LevelAccessor;
+import net.minecraft.world.level.Level;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.util.RandomSource;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.Items;
+import net.minecraft.core.particles.ParticleOptions;
+import net.minecraft.core.particles.ParticleTypes;
+
+public abstract class {{ registryname }}Fluid extends FlowingFluid {
+
+    public static final FlowingFluid.Properties PROPERTIES = new FlowingFluid.Properties(
+        () -> {{ JavaModName }}FluidTypes.{{ registryname_upper }}_TYPE.get(),
+        () -> {{ JavaModName }}Fluids.{{ registryname_upper }}.get(),
+        () -> {{ JavaModName }}Fluids.FLOWING_{{ registryname_upper }}.get())
+        .explosionResistance({{ resistance }}f)
+        {{ if flow_rate != 5 }}.tickRate({{ flow_rate }}){{ end }}
+        {{ if level_decrease != 1 }}.levelDecreasePerBlock({{ level_decrease }}){{ end }}
+        {{ if slope_find_distance != 4 }}.slopeFindDistance({{ slope_find_distance }}){{ end }}
+        {{ if generate_bucket }}.bucket(() -> {{ JavaModName }}Items.{{ registryname_upper }}_BUCKET.get()){{ end }}
+        .block(() -> (LiquidBlock) {{ JavaModName }}Blocks.{{ registryname_upper }}.get());
+
+    private {{ registryname }}Fluid() {
+        super(PROPERTIES);
+    }
+
+    {{ if spawn_particles }}
+    @Override public ParticleOptions getDripParticle() {
+        return {{ drip_particle }};
+    }
+    {{ end }}
+
+    public static class Source extends {{ registryname }}Fluid {
+        @Override public int getAmount(FluidState state) { return 8; }
+        @Override public boolean isSource(FluidState state) { return true; }
+    }
+
+    public static class Flowing extends {{ registryname }}Fluid {
+        @Override protected void createFluidStateDefinition(StateDefinition.Builder<Fluid, FluidState> builder) {
+            super.createFluidStateDefinition(builder);
+            builder.add(LEVEL);
+        }
+        @Override public int getAmount(FluidState state) { return state.getValue(LEVEL); }
+        @Override public boolean isSource(FluidState state) { return false; }
+    }
+
+    // Start of user code block fluid methods
+    // End of user code block fluid methods
+}

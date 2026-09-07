@@ -1,0 +1,52 @@
+package {{ package }}.init;
+
+import net.minecraft.world.effect.MobEffect;
+import net.minecraft.world.effect.MobEffectCategory;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.ai.attributes.AttributeMap;
+import net.minecraft.world.effect.InstantenousMobEffect;
+
+public class {{ registryname }}MobEffect extends MobEffect {
+
+    public {{ registryname }}MobEffect() {
+        super(
+            {{ if is_beneficial }}MobEffectCategory.BENEFICIAL
+            {{ else if is_harmful }}MobEffectCategory.HARMFUL
+            {{ else }}MobEffectCategory.NEUTRAL{{ end }},
+            {{ color }});
+    }
+
+    {{ if has_instantaneous }}
+    @Override
+    public boolean isInstantenous() { return true; }
+    {{ end }}
+
+    {{ if has_attributes }}
+    @Override
+    public void addAttributeModifiers(AttributeMap attributeMap, int amplifier) {
+        super.addAttributeModifiers(attributeMap, amplifier);
+    }
+
+    @Override
+    public void removeAttributeModifiers(AttributeMap attributeMap) {
+        super.removeAttributeModifiers(attributeMap);
+    }
+    {{ end }}
+
+    {{ if has_applied_effect }}
+    @Override
+    public void applyEffectTick(LivingEntity entity, int amplifier) {
+        // TODO: add custom effect tick logic
+    }
+    {{ end }}
+
+    {{ if has_ticks }}
+    @Override
+    public boolean shouldApplyEffectTickThisTick(int duration, int amplifier) {
+        return true;
+    }
+    {{ end }}
+
+    // Start of user code block potion effect methods
+    // End of user code block potion effect methods
+}

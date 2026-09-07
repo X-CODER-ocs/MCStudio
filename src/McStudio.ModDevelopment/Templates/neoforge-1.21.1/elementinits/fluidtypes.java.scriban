@@ -1,0 +1,12 @@
+package {{ package }}.init;
+
+import net.neoforged.neoforge.fluids.FluidType;
+
+public class {{ JavaModName }}FluidTypes {
+    public static final DeferredRegister<FluidType> REGISTRY = DeferredRegister.create(Registries.FLUID_TYPE, {{ JavaModName }}.MODID);
+
+    {{ for fluidtype in fluidtypes }}
+    public static final DeferredHolder<FluidType, FluidType> {{ fluidtype.field_name }} = REGISTRY.register("{{ fluidtype.registry_name }}",
+        () -> {{ fluidtype.class_name }});
+    {{ end }}
+}

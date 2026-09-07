@@ -1,0 +1,12 @@
+package {{ package }}.init;
+
+import net.minecraft.world.effect.MobEffect;
+
+public class {{ JavaModName }}MobEffects {
+    public static final DeferredRegister<MobEffect> REGISTRY = DeferredRegister.create(Registries.MOB_EFFECT, {{ JavaModName }}.MODID);
+
+    {{ for effect in effects }}
+    public static final DeferredHolder<MobEffect, MobEffect> {{ effect.field_name }} = REGISTRY.register("{{ effect.registry_name }}",
+        () -> {{ effect.class_name }});
+    {{ end }}
+}

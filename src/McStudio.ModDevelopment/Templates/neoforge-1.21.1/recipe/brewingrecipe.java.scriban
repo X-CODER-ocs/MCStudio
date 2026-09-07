@@ -1,0 +1,24 @@
+package {{ package }}.world.item;
+
+import net.minecraft.world.item.Items;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.alchemy.PotionBrewing;
+import net.minecraft.world.item.alchemy.PotionUtils;
+import net.minecraft.world.item.alchemy.Potions;
+import net.neoforged.neoforge.event.brewing.RegisterBrewingRecipesEvent;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
+
+@EventBusSubscriber(modid = {{ JavaModName }}.MODID)
+public class {{ registryname }}BrewingRecipe {
+
+    @SubscribeEvent
+    public static void onBrewingRecipeRegister(RegisterBrewingRecipesEvent event) {
+        var builder = event.getBuilder();
+        builder.addMix(
+            PotionUtils.setPotion(new ItemStack(Items.POTION), {{ input_potion }}),
+            {{ ingredient }},
+            PotionUtils.setPotion(new ItemStack(Items.POTION), {{ output_potion }})
+        );
+    }
+}

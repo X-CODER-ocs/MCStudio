@@ -1,0 +1,54 @@
+package {{ package }}.world.inventory;
+
+import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.inventory.MenuType;
+import net.minecraft.world.inventory.Slot;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
+import net.minecraft.core.BlockPos;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.world.SimpleContainer;
+import net.minecraft.world.inventory.ContainerData;
+import net.minecraft.world.inventory.SimpleContainerData;
+
+public class {{ registryname }}Menu extends AbstractContainerMenu {
+
+    public final Level world;
+    public final Player entity;
+    public final int x, y, z;
+
+    public {{ registryname }}Menu(int id, Inventory inv, FriendlyByteBuf extraData) {
+        this(id, inv, new SimpleContainer({{ slot_count }}));
+    }
+
+    public {{ registryname }}Menu(int id, Inventory inv, SimpleContainer container) {
+        super(null, id);
+        this.world = inv.player.level();
+        this.entity = inv.player;
+        this.x = 0;
+        this.y = 0;
+        this.z = 0;
+
+        // Add player inventory slots
+        for (int row = 0; row < 3; row++)
+            for (int col = 0; col < 9; col++)
+                this.addSlot(new Slot(inv, col + row * 9 + 9, {{ player_inv_x }} + col * 18, {{ player_inv_y }} + row * 18));
+        for (int col = 0; col < 9; col++)
+            this.addSlot(new Slot(inv, col, {{ player_hotbar_x }} + col * 18, {{ player_hotbar_y }}));
+    }
+
+    @Override
+    public ItemStack quickMoveStack(Player player, int slotIndex) {
+        return ItemStack.EMPTY;
+    }
+
+    @Override
+    public boolean stillValid(Player player) {
+        return true;
+    }
+
+    // Start of user code block container methods
+    // End of user code block container methods
+}

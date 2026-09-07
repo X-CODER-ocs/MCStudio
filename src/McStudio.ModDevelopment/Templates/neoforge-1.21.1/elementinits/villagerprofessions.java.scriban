@@ -1,0 +1,16 @@
+package {{ package }}.init;
+
+import net.minecraft.world.entity.npc.VillagerProfession;
+
+public class {{ JavaModName }}VillagerProfessions {
+    public static final DeferredRegister<VillagerProfession> REGISTRY = DeferredRegister.create(Registries.VILLAGER_PROFESSION, {{ JavaModName }}.MODID);
+
+    {{ for prof in professions }}
+    public static final DeferredHolder<VillagerProfession, VillagerProfession> {{ prof.field_name }} = REGISTRY.register("{{ prof.registry_name }}",
+        () -> new VillagerProfession("{{ prof.registry_name }}",
+            (poi) -> poi.is({{ JavaModName }}PoiTypes.{{ prof.poi_field }}.get()),
+            (poi) -> poi.is({{ JavaModName }}PoiTypes.{{ prof.poi_field }}.get()),
+            ImmutableSet.of(), ImmutableSet.of(),
+            {{ prof.sound_event }}));
+    {{ end }}
+}
