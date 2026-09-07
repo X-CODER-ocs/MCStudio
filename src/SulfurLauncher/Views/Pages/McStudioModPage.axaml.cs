@@ -3,6 +3,7 @@ using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Interactivity;
 using McStudio.ModDevelopment.Generator;
+using McStudio.ModDevelopment.Gradle;
 using McStudio.ModDevelopment.Workspace;
 using SulfurLauncher.Module.DefaultPage;
 using Tio.Avalonia.Standard.Tab.Entries;
@@ -125,30 +126,19 @@ public partial class McStudioModPage : UserControl, ITioTabPage
     private async void OnBuildMod(object? sender, RoutedEventArgs e)
     {
         OnGenerateCode(sender, e);
-
         if (_selectedWorkspace == null) return;
 
-        var workspaceFolder = _selectedWorkspace.GetWorkspaceFolder();
-        if (!File.Exists(Path.Combine(workspaceFolder, "gradlew")))
+        var runner = new McGradleRunner(_selectedWorkspace.GetWorkspaceFolder());
+        if (!runner.HasGradleWrapper())
         {
+            // Try to generate Gradle wrapper
             return;
         }
 
-        var process = new System.Diagnostics.Process
-        {
-            StartInfo = new System.Diagnostics.ProcessStartInfo
-            {
-                FileName = "bash",
-                Arguments = "./gradlew build",
-                WorkingDirectory = workspaceFolder,
-                RedirectStandardOutput = true,
-                RedirectStandardError = true,
-                UseShellExecute = false,
-                CreateNoWindow = true
-            }
-        };
-
-        process.Start();
-        await process.WaitForExitAsync();
+        var result = await runner.Build();
+        if (result.IsSuccess)
+            Console.WriteLine("Build successful!");
+        else
+            Console.WriteLine($"Build failed: {result.Error}");
     }
 }

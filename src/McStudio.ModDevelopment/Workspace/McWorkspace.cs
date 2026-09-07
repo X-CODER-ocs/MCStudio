@@ -10,7 +10,7 @@ namespace McStudio.ModDevelopment.Workspace;
 /// </summary>
 public class McWorkspace : IDisposable
 {
-    private static readonly string WorkspaceFileName = "workspace.ccs";
+    public const string WorkspaceFileName = "workspace.ccs";
 
     [JsonInclude] public ObservableCollection<McModElement> ModElements { get; private set; } = [];
     [JsonInclude] public ObservableCollection<McVariableElement> VariableElements { get; private set; } = [];
